@@ -8,11 +8,26 @@ http://mapfish.github.io/mapfish-print/
 Build
 -----
 
+Note: JAVA 8 does not work (fails to compile findbugsMain). JAVA 7 is required.
+
+..code::
+
+  > sudo update-java-alternatives -s java-7-oracle
+  > export JAVA_HOME=/usr/lib/jvm/java-7-oracle
+
+During the build process, jetty needs to start (at port 8080):
+
+  > sudo service tomcat7 stop
+
 Execute the following command():
 
-.. code::
+..code::
 
+  > perl -pi -e 's/\r\n/\n/g' gradlew
+  > chmod +x gradlew
   > ./gradlew build
+  >
+  > sudo service tomcat7 stop
 
 This will build three artifacts:  print-servlet-xxx.war, print-lib.jar, print-standalone.jar
 
@@ -34,8 +49,14 @@ The following command will build and upload all artifacts to the maven central r
 
 .. code::
 
-  > ./gradlew uploadArchives -DsshPassphrase=...
-
+  > sudo service tomcat7 stop
+  > sudo rm -rf /var/lib/tomcat7/webapps/print
+  > sudo cp debian/build/data/print.war /var/lib/tomcat7/webapps/
+  > sudo service tomcat7 start
+  >
+  > scp debian/build/data/print.war jgr@geomaster.pt:/tmp
+  > ssh jgr@geomaster.pt
+  > sudo cp /tmp/print.war /opt/tomcat7/webapps
 
 To use in Eclipse
 -----------------
